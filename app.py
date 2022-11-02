@@ -10,5 +10,5 @@ def response():
     #result = query + " " + time.ctime()
     return jsonify({"response" : "HELLO"})
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0",)
+#if __name__ == "__main__":
+#   app.run(host="0.0.0.0",)
