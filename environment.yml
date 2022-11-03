@@ -1,0 +1,10 @@
+name: diamond_predictor #Environment name
+dependencies:
+  - python=3.10.4
+  - pip:
+    - flask
+    - tensorflow
+    - pandas
+    - numpy
+    - sklearn
+    - gunicorn # for app deployment
