@@ -8,13 +8,87 @@ from keras.saving.save import load_model
 
 app = Flask(__name__)
 
-model = load(open("model/motor-model.pkl", "rb"))
+model = load(open("model/motor-modelV2.pkl", "rb"))
 model_classifications = ['Custom / cruiser', 'Naked bike', 'Sport', 'Touring']
+'''
+for the describe function, indexes
+0 = count
+1 = mean
+2 = std
+3 = min 
+4 = 25%
+5 = 50%
+6 = 75%
+7 = max
+'''
 
+@app.route('/', methods=['GET'])
+def modelInformation():
+    print("GET request received!!")
+    df = pd.read_csv('model/cleaned_dfV2.csv')
+    df_describtion = df.describe()
+    #print(df.describe())
+    # Getting al the min and max input possibilities
+    minDisplacement = df_describtion['Displacement (ccm)'].iloc[3]
+    maxDisplacement = df_describtion['Displacement (ccm)'].iloc[7]
+
+    minPower = df_describtion['Power (hp)'].iloc[3]
+    maxPower = df_describtion['Power (hp)'].iloc[7]
+
+    minTorque = df_describtion['Torque (Nm)'].iloc[3]
+    maxTorque = df_describtion['Torque (Nm)'].iloc[7]
+
+    minDry_weight = df_describtion['Dry weight (kg)'].iloc[3]
+    maxDry_weight = df_describtion['Dry weight (kg)'].iloc[7]
+
+    minWheelbase = df_describtion['Wheelbase (mm)'].iloc[3]
+    maxWheelbase = df_describtion['Wheelbase (mm)'].iloc[7]
+
+    minSeat_height = df_describtion['Seat height (mm)'].iloc[3]
+    maxSeat_height = df_describtion['Seat height (mm)'].iloc[7]
+
+
+
+
+    print("min value of power", df_describtion['Power (hp)'].iloc[3])
+    
+
+    #print(model.describe())
+    return {
+        'message' : "get request accepted",
+        'displacement' : {
+            'min' : int(minDisplacement),
+            'max' : int(maxDisplacement)
+        },
+        'power' : {
+            'min' : int(minPower),
+            'max' : int(maxPower)
+        },
+        'torque' : {
+            'min' : int(minTorque),
+            'max' : int(maxTorque)
+        },
+        'dry_weight' : {
+            'min' : int(minDry_weight),
+            'max' : int(maxDry_weight)
+        },
+        'wheelbase' : {
+            'min' : int(minWheelbase),
+            'max' : int(maxWheelbase)
+        },
+        'seat_height' : {
+            'min' : int(minSeat_height),
+            'max' : int(maxSeat_height)
+        },
+    }
+
+    
 
 @app.route('/', methods=['POST'])
 def predict():
+    print("POST request received!!")
     json = request.get_json(force=True, silent=False, cache=True)
+    print("json received:\n", json)
     #retrieving input data
     message = json['message']
     seat_height = json['seat_height']
@@ -29,6 +103,7 @@ def predict():
     outcome = model.predict(prediction_input)
     #gets the classification
     outcome_classification = model_classifications[np.argmax(outcome)]
+    print(outcome_classification)
 
     #TODO: implement shap and get some feature affection and get that in the json
 
@@ -39,7 +114,7 @@ def predict():
     }
 
 
-@app.before_request
-def only_json():
-    if not request.is_json:
-        abort(400)
+#@app.before_request
+#def only_json():
+#    if not request.is_json:
+#        abort(400)
